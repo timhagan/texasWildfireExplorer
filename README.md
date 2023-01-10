@@ -3,12 +3,12 @@ Pipeline using public data to predict wildfire size using ML and turn the result
 
 Consists of:
 
-1. An etl script which includes:/
-  Downloading data/
-  Cleaning/
-  Imputing/
-  Modeling/
-  Saving output/
-/
+1. An etl script which includes:
+  Downloading data, 
+  Cleaning, 
+  Imputing, 
+  Modeling, 
+  Saving output, 
+
 2. An app script which defines the Shiny App
  
