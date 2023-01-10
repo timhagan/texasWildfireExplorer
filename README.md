@@ -1,4 +1,4 @@
-# texasWildfireExplorer
+# Texas Wildfire Explorer
 Pipeline using public data to predict wildfire size using ML and turn the results into a dashboard.
 
 Available at http://tim-hagan.shinyapps.io/TX_Wildfire_Explorer
