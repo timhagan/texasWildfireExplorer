@@ -8,7 +8,7 @@ Consists of:
   Cleaning, 
   Imputing, 
   Modeling, 
-  Saving output, 
+  Saving output
 
 2. An app script which defines the Shiny App
  
