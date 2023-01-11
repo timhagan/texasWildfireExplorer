@@ -171,15 +171,9 @@ wildfires_sf_dt$DiscoveryAcres_imp   <- rowMeans(complete_data[grepl(pattern = "
 wildfires_sf_dt$length_in_days_imp   <- rowMeans(complete_data[grepl(pattern = "length_in_days", names(complete_data))])
 rm(complete_data); gc();gc()
 
-### Further preparations for plotting
 wildfires_sf_dt$FireInfo <- paste("<strong>", "Acres Burned:", "</strong>", wildfires_sf_dt$DailyAcres_imp, "<br>",
                                   "<strong>", "Discovery Date:", "</strong>", as.Date(wildfires_sf_dt$FireDiscoveryDateTime), "<br>",
                                   "<strong>", "FireCause:", "</strong>", wildfires_sf_dt$FireCause_Clean)
-
-# wildfires_sf_ord_date$FireInfo <- paste("<strong>", "Acres Burned:", "</strong>", wildfires_sf_ord_date$`Daily Acres`, "<br>",
-#                                         "<strong>", "Discovery Date:", "</strong>", as.Date(wildfires_sf_ord_date$`Fire Discovery Date`), "<br>",
-#                                         "<strong>", "FireCause:", "</strong>", wildfires_sf_ord_date$`Fire Cause`)
-
 
 ### Merges
 state_info <- st_join(state_income, 
@@ -187,10 +181,6 @@ state_info <- st_join(state_income,
                       st_equals)
 
 wildfires_sf_dt$POOFips <- as.integer(wildfires_sf_dt$POOFips)
-# wildfires_sf_inc <- merge(wildfires_sf_dt, st_drop_geometry(state_income),
-#                           by.x = "POOFips",
-#                           by.y = "GEOID")
-# rm(wildfires_sf_dt)
 
 wildfires_sf_pop <- merge(wildfires_sf_dt, st_drop_geometry(state_info), 
                           by.x = "POOFips",
@@ -222,6 +212,9 @@ wildfires_sf_ord_date$POOLandownerKind_Other <- ifelse(wildfires_sf_ord_date$POO
 wildfires_sf_ord_date$POOLandownerKind_Private <- ifelse(wildfires_sf_ord_date$POOLandownerKind_Clean=="Private",
                                                          1,0)
 
+################
+### Modeling ###
+################
 
 ### Train and Test Split
 out_of_time_train_idx <- wildfires_sf_ord_date$discovery_year < test_year
@@ -257,10 +250,9 @@ wildfires_sf_ord_date$rf.log.predictions <- predict(wf.rf.mod.log,
 library(randomForest)
 varImpPlot(wf.rf.mod.log$finalModel)
 
-### final preparations ###
-# state_info <- st_join(state_income, 
-#                       state_population,
-#                       st_equals)
+###################################
+### Final Plotting Preparations ###
+###################################
 
 wildfires_sf_ord_date <- st_as_sf(wildfires_sf_ord_date)
 
@@ -274,10 +266,9 @@ wildfires_sf_ord_date$`Fire Discovery Date` <- as.Date(wildfires_sf_ord_date$Fir
 
 wildfires_sf_ord_date$populationBin <- cut2(wildfires_sf_ord_date$population, g = 4)
 
-### transform crs for leaflet
 wildfires_sf_ord_date$`Fire Cause` <- as.factor(wildfires_sf_ord_date$`Fire Cause`)
 
-### sunburst prep
+### Sunburst prep
 cut_points <- cut2(state_info$median_income, g = 4, onlycuts = T)
 state_info$income_level <- cut(state_info$median_income,
                                breaks = cut_points,
@@ -299,7 +290,7 @@ state_info1$`Count of Fires` <- ifelse(is.na(state_info1$`Count of Fires`),
                                        0,
                                        state_info1$`Count of Fires`)
 
-### ridges prep
+### Ridges prep
 cut_points <- c(0, 5, 10, 50, 150, 500, 1000)
 wildfires_sf_ord_date$rf.log.predictions.bin <- cut2(exp(wildfires_sf_ord_date$rf.log.predictions), 
                                                      cuts = cut_points)
@@ -311,6 +302,9 @@ state_info1 <- st_transform(state_info1, crs = '+proj=longlat +datum=WGS84')
 state_info1$lightgrey <- "lightgrey"
 wildfires_sf_ord_date$lightgrey <- "lightgrey"
 
+###################
+### Save Output ###
+###################
 saveRDS(wildfires_sf_ord_date, "wildfire_data.rds")
 saveRDS(state_info1, "state_data.rds")
 
